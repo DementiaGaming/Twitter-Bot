@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import requests
 import praw
 import random
-import time
 
 load_dotenv()
 
