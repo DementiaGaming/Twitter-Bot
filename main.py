@@ -51,9 +51,10 @@ def getRedditPosts(subreddits):
         return "No trending posts found."
 
     post = random.choice(top_posts)
-    title = post.title[:100]
+    title = post.title
+    description = post.selftext
     url = post.url
-    return f"📢 {title}\n"
+    return f"📢 {title}\n{description}\n"
 
 def tweetText(tweetText):
     client.create_tweet(text=tweetText)
@@ -71,7 +72,8 @@ def generateAiTextPrompt(prompt):
     
     return "Error: No response"
 
-while True:
+
+def main():
     try:
         #decides what the bot should tweet
         context = getRedditPosts(subreddits)
@@ -82,10 +84,9 @@ while True:
         if text != "Error: No response":
             tweetText(f"{text}\n{url}")
         
-        print("✅ Tweet posted! Waiting 30 minutes...")
-        time.sleep(1800)
-        
+        print("✅ Tweet posted!")
+
     except Exception as e:
         print(f"❌ Error: {e}")
-        print("Retrying in 30 minutes...")
-        time.sleep(1800)
+
+main()
