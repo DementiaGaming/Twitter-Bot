@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 import requests
 import praw
 import random
+import tkinter as tk
+import customtkinter as ctk
+import asyncio
 
 load_dotenv()
 
@@ -72,7 +75,8 @@ def generateAiTextPrompt(prompt):
     return "Error: No response"
 
 
-def main():
+async def generateAndTweet():
+    outputText.configure(text="Generating and tweeting...")
     try:
         #decides what the bot should tweet
         context = getRedditPosts(subreddits)
@@ -84,8 +88,27 @@ def main():
             tweetText(f"{text}\n{url}")
         
         print("✅ Tweet posted!")
+        outputText.configure(text="✅ Tweet posted!")
 
     except Exception as e:
         print(f"❌ Error: {e}")
+        outputText.configure(text=f"❌ Error: {e}")
 
-main()
+def check_async_loop():
+    try:
+        asyncio.get_event_loop().run_until_complete(asyncio.sleep(0))
+    except RuntimeError:
+        pass
+    root.after(100, check_async_loop)
+
+root = ctk.CTk()
+root.title("Twitter Bot")
+root.geometry("800x400")
+
+tweetButton = ctk.CTkButton(root, text="Generate and Tweet", command= lambda: asyncio.create_task(generateAndTweet()))
+tweetButton.pack()
+
+outputText = ctk.CTkLabel(root, text="")
+outputText.pack()
+
+root.mainloop()
