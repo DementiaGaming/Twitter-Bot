@@ -6,6 +6,7 @@ import praw
 import random
 import tkinter as tk
 import customtkinter as ctk
+import subprocess
 
 load_dotenv()
 
@@ -41,7 +42,9 @@ HEADERS = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
 #Add any subreddits you want to fetch posts from and feed into the ai here
 subreddits = ["youtubedrama", "LivestreamFail", "insanepeopletwitter"]
 
+context = ""
 tweetText = ""
+prompt = "Now, write a hilarious, unfiltered tweet reacting to the reddit post. Be sarcastic, dramatic, or ridiculous. No repeating, no hashtags, under 200 characters. also swear and use slang"
 
 def getRedditPosts(subreddits):
     global url
@@ -105,11 +108,42 @@ def generateAndTweet():
         outputText.configure(text=f"❌ Error: {e}")
 
 def generateText():
+    global context, prompt
     context = getRedditPosts(subreddits)
     print(context)
     contextText.configure(text=f"Context: {context}")
-    text = generateAiTextPrompt(f"Here’s a messy Reddit post: '{context}'. Now, write a hilarious, unfiltered tweet reacting to it. Be sarcastic, dramatic, or ridiculous. No repeating, no hashtags, under 200 characters. also swear and use slang")
+    text = generateAiTextPrompt(f"Heres a reddit post: {context}. {prompt}")
     print(f"Ai tweet: {text}")
+
+def openSettings():
+    settingsWindow = ctk.CTk()
+    settingsWindow.title("Settings")
+    settingsWindow.geometry("800x400")
+    settingsWindow.resizable(False, False)
+
+    settingsLabel = ctk.CTkLabel(settingsWindow, text="Settings")
+    settingsLabel.pack(padx=10, pady=10)
+
+    labelPrompt = ctk.CTkLabel(settingsWindow, text="Enter a new prompt:")
+    labelPrompt.pack(padx=10, pady=5)
+    editPrompt = ctk.CTkEntry(settingsWindow, width=600, height=5)
+    editPrompt.pack(padx=10, pady=5)
+    editPrompt.insert(0, prompt)
+    submitPrompt = ctk.CTkButton(settingsWindow, text="Submit", command=lambda:newPrompt(editPrompt.get()))
+    submitPrompt.pack(padx=10, pady=5)
+
+    apiKeysButton = ctk.CTkButton(settingsWindow, text="API Keys", command=lambda:subprocess.Popen(["notepad", ".env"]))
+    apiKeysButton.pack(padx=10, pady=10)
+
+    apiKeysButtonExample = ctk.CTkButton(settingsWindow, text="Example API Keys Layout", command=lambda:subprocess.Popen(["notepad", ".env.example"]))
+    apiKeysButtonExample.pack(padx=10, pady=10)
+
+    settingsWindow.mainloop()
+
+def newPrompt(newPrompt):
+    global prompt
+    prompt = newPrompt
+    print(f"Prompt updated: {prompt}")
 
 root = ctk.CTk()
 root.title("Twitter Bot")
@@ -121,6 +155,9 @@ generateButton.pack(padx=10, pady=10)
 
 tweetButton = ctk.CTkButton(root, text="Post", command=tweetText)
 tweetButton.pack(padx=10, pady=10)
+
+settingsButton = ctk.CTkButton(root, text="Settings", command=openSettings)
+settingsButton.pack(padx=10, pady=10)
 
 outputText = ctk.CTkLabel(root, text="", wraplength=600)
 outputText.pack(padx=10, pady=10)
