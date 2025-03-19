@@ -6,7 +6,6 @@ import praw
 import random
 import tkinter as tk
 import customtkinter as ctk
-import asyncio
 
 load_dotenv()
 
@@ -42,6 +41,8 @@ HEADERS = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
 #Add any subreddits you want to fetch posts from and feed into the ai here
 subreddits = ["youtubedrama", "LivestreamFail", "insanepeopletwitter"]
 
+tweetText = ""
+
 def getRedditPosts(subreddits):
     global url
     subreddit_name = random.choice(subreddits)
@@ -58,11 +59,17 @@ def getRedditPosts(subreddits):
     url = post.url
     return f"📢 {title}\n{description}\n"
 
-def tweetText(tweetText):
-    client.create_tweet(text=tweetText)
-    print(f"tweeted: {tweetText}")
+def tweetText():
+    if tweetText == "":
+        outputText.configure(text="Error: No tweet to post")
+    else:
+        client.create_tweet(text=tweetText)
+        print(f"tweeted: {tweetText}")
+        outputText.configure(text=f"✅ Tweet Posted")
+        contextText.configure(text="")
 
 def generateAiTextPrompt(prompt):
+    global tweetText
     response = requests.post(API_URL, headers=HEADERS, json={"inputs": prompt})
     response_json = response.json()
     
@@ -70,12 +77,15 @@ def generateAiTextPrompt(prompt):
         raw_text = response_json[0].get("generated_text", "Error: No response")
         
         cleaned_text = raw_text.split("\n")[-1].strip()
-        return cleaned_text if cleaned_text else "Error: No response"
+        tweetText = cleaned_text
+        outputText.configure(text=f"Generated Post: {cleaned_text}")
+        return cleaned_text if cleaned_text else outputText.configure(text="Error: No response")
     
+    outputText.configure(text="Error: No response")
     return "Error: No response"
 
 
-async def generateAndTweet():
+def generateAndTweet():
     outputText.configure(text="Generating and tweeting...")
     try:
         #decides what the bot should tweet
@@ -94,21 +104,28 @@ async def generateAndTweet():
         print(f"❌ Error: {e}")
         outputText.configure(text=f"❌ Error: {e}")
 
-def check_async_loop():
-    try:
-        asyncio.get_event_loop().run_until_complete(asyncio.sleep(0))
-    except RuntimeError:
-        pass
-    root.after(100, check_async_loop)
+def generateText():
+    context = getRedditPosts(subreddits)
+    print(context)
+    contextText.configure(text=f"Context: {context}")
+    text = generateAiTextPrompt(f"Here’s a messy Reddit post: '{context}'. Now, write a hilarious, unfiltered tweet reacting to it. Be sarcastic, dramatic, or ridiculous. No repeating, no hashtags, under 200 characters. also swear and use slang")
+    print(f"Ai tweet: {text}")
 
 root = ctk.CTk()
 root.title("Twitter Bot")
 root.geometry("800x400")
+root.resizable(False, False)
 
-tweetButton = ctk.CTkButton(root, text="Generate and Tweet", command= lambda: asyncio.create_task(generateAndTweet()))
-tweetButton.pack()
+generateButton = ctk.CTkButton(root, text="Generate Post", command=generateText)
+generateButton.pack(padx=10, pady=10)
 
-outputText = ctk.CTkLabel(root, text="")
-outputText.pack()
+tweetButton = ctk.CTkButton(root, text="Post", command=tweetText)
+tweetButton.pack(padx=10, pady=10)
+
+outputText = ctk.CTkLabel(root, text="", wraplength=600)
+outputText.pack(padx=10, pady=10)
+
+contextText = ctk.CTkLabel(root, text="", wraplength=600)
+contextText.pack(padx=10, pady=10)
 
 root.mainloop()
