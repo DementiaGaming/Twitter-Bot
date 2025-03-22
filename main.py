@@ -7,6 +7,7 @@ import random
 import tkinter as tk
 import customtkinter as ctk
 import subprocess
+import threading
 
 load_dotenv()
 
@@ -150,7 +151,7 @@ root.title("Twitter Bot")
 root.geometry("800x400")
 root.resizable(False, False)
 
-generateButton = ctk.CTkButton(root, text="Generate Post", command=generateText)
+generateButton = ctk.CTkButton(root, text="Generate Post", command=lambda:threading.Thread(target=generateText).start())
 generateButton.pack(padx=10, pady=10)
 
 tweetButton = ctk.CTkButton(root, text="Post", command=tweetText)
