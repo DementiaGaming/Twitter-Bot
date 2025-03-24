@@ -9,4 +9,4 @@ pip install -r requirements.txt
 ```
 Then set up Twitter API, Reddit API, and Huggingface API and put all your keys into a .env file (on the settings page)
 
-In the settings menu you can edit the prompt sent to the ai
+In the settings menu you can edit the prompt sent to the ai and the subreddits that the ai will gather posts from
