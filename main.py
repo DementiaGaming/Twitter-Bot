@@ -123,17 +123,20 @@ def openSettings():
     settingsWindow.resizable(False, False)
 
     settingsLabel = ctk.CTkLabel(settingsWindow, text="Settings")
-    settingsLabel.pack(padx=10, pady=10)
+    settingsLabel.pack(padx=10, pady=5)
 
     labelPrompt = ctk.CTkLabel(settingsWindow, text="Enter a new prompt:")
     labelPrompt.pack(padx=10, pady=5)
     editPrompt = ctk.CTkEntry(settingsWindow, width=600, height=5)
     editPrompt.pack(padx=10, pady=5)
     editPrompt.insert(0, prompt)
-    submitPrompt = ctk.CTkButton(settingsWindow, text="Submit", command=lambda:newPrompt(editPrompt.get()))
+    submitPrompt = ctk.CTkButton(settingsWindow, text="Save", command=lambda:newPrompt(editPrompt.get()))
     submitPrompt.pack(padx=10, pady=5)
 
-    apiKeysButton = ctk.CTkButton(settingsWindow, text="API Keys", command=lambda:subprocess.Popen(["notepad", ".env"]))
+    apiKeysLabel = ctk.CTkLabel(settingsWindow, text="API Keys")
+    apiKeysLabel.pack(padx=10, pady=5)
+
+    apiKeysButton = ctk.CTkButton(settingsWindow, text="Edit API Keys", command=lambda:subprocess.Popen(["notepad", ".env"]))
     apiKeysButton.pack(padx=10, pady=10)
 
     apiKeysButtonExample = ctk.CTkButton(settingsWindow, text="Example API Keys Layout", command=lambda:subprocess.Popen(["notepad", ".env.example"]))
