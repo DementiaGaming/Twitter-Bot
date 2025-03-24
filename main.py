@@ -117,6 +117,8 @@ def generateText():
     print(f"Ai tweet: {text}")
 
 def openSettings():
+    global prompt, subreddits, subredditsEntry
+    
     settingsWindow = ctk.CTk()
     settingsWindow.title("Settings")
     settingsWindow.geometry("800x400")
@@ -133,6 +135,16 @@ def openSettings():
     submitPrompt = ctk.CTkButton(settingsWindow, text="Save", command=lambda:newPrompt(editPrompt.get()))
     submitPrompt.pack(padx=10, pady=5)
 
+    subredditLabel = ctk.CTkLabel(settingsWindow, text="Subreddits")
+    subredditLabel.pack(padx=10, pady=5)
+
+    subredditsEntry = ctk.CTkEntry(settingsWindow, width=600, height=5)
+    subredditsEntry.pack(padx=10, pady=5)
+    subredditsEntry.insert(0, ", ".join(subreddits))
+
+    submitSubreddits = ctk.CTkButton(settingsWindow, text="Save", command=updateSubreddits)
+    submitSubreddits.pack(padx=10, pady=5)
+
     apiKeysLabel = ctk.CTkLabel(settingsWindow, text="API Keys")
     apiKeysLabel.pack(padx=10, pady=5)
 
@@ -143,6 +155,11 @@ def openSettings():
     apiKeysButtonExample.pack(padx=10, pady=10)
 
     settingsWindow.mainloop()
+
+def updateSubreddits():
+    global subreddits, subbredditsEntry
+    subreddits = subredditsEntry.get().split(", ")
+    print(f"Subreddits updated: {subreddits}")
 
 def newPrompt(newPrompt):
     global prompt
